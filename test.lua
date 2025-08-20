@@ -1971,10 +1971,11 @@ function RayfieldLibrary:CreateWindow(Settings)
 	Elements.Template.Visible = false
 
 	Elements.UIPageLayout.FillDirection = Enum.FillDirection.Horizontal
-TabList.Size = UDim2.new(0, 150, 1, -45)
-TabList.Position = UDim2.new(0, 0, 0, 75)
-Elements.Size = UDim2.new(1, -150, 1, -45)
-Elements.Position = UDim2.new(0, 150, 0, 45)
+	TabList.Size = UDim2.new(0, 150, 1, -55)
+TabList.Position = UDim2.new(0, 0, 0, 55)
+Elements.Size = UDim2.new(1, -150, 1, -55)
+Elements.Position = UDim2.new(0, 150, 0, 55)
+TabList.Visible = true
 
 if TabList:FindFirstChild("UIListLayout") then
     TabList.UIListLayout.FillDirection = Enum.FillDirection.Vertical
@@ -1996,6 +1997,8 @@ end
 		TabButton.Parent = TabList
 		TabButton.Title.TextWrapped = false
 		TabButton.Size = UDim2.new(1, -4, 0, 35)
+		TabButton.Title.TextXAlignment = Enum.TextXAlignment.Left
+
 
 		if Image and Image ~= 0 then
 			if typeof(Image) == 'string' and Icons then
@@ -2009,8 +2012,7 @@ end
 			end
 
 			TabButton.Title.AnchorPoint = Vector2.new(0, 0.5)
-			TabButton.Title.Position = UDim2.new(0, 35, 0, 0)
-      TabButton.Title.Size = UDim2.new(1, -40, 1, 0)
+			TabButton.Title.Position = UDim2.new(0, 37, 0.5, 0)
 			TabButton.Image.Visible = true
 			TabButton.Title.TextXAlignment = Enum.TextXAlignment.Left
 			TabButton.Size = UDim2.new(0, TabButton.Title.TextBounds.X + 52, 0, 30)
@@ -4007,6 +4009,5 @@ task.delay(4, function()
 		Main.Notice.Visible = false
 	end
 end)
--- E
-return RayfieldLibrary
 
+return RayfieldLibrary
