@@ -3,25 +3,25 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 local SimpleUI = {}
-
 SimpleUI.Theme = {
-    Background = Color3.fromRGB(25, 25, 35),
-    Accent = Color3.fromRGB(140, 90, 255),
-    Tab = Color3.fromRGB(40, 40, 55),
-    TabActive = Color3.fromRGB(140, 90, 255),
-    ToggleOn = Color3.fromRGB(90, 255, 90),
-    ToggleOff = Color3.fromRGB(70, 70, 70),
-    Button = Color3.fromRGB(70, 140, 255),
+    ToggleOn = Color3.fromRGB(255, 75, 75),
+    ToggleOff = Color3.fromRGB(40, 40, 40),
+    Background = Color3.fromRGB(25, 25, 30),
+    Tab = Color3.fromRGB(50, 50, 55),
+    TabActive = Color3.fromRGB(100, 50, 150),
+    Button = Color3.fromRGB(0, 120, 200),
     ButtonText = Color3.fromRGB(255, 255, 255),
-    SliderBar = Color3.fromRGB(50, 50, 60),
-    SliderFill = Color3.fromRGB(140, 90, 255),
-    Dropdown = Color3.fromRGB(50, 50, 60),
-    Text = Color3.fromRGB(230, 230, 230),
+    SliderBar = Color3.fromRGB(70, 70, 70),
+    SliderFill = Color3.fromRGB(255, 75, 75),
+    Dropdown = Color3.fromRGB(60, 60, 60),
+    DropdownOption = Color3.fromRGB(80, 80, 80)
 }
 
 function SimpleUI:SetTheme(themeTable)
     for k,v in pairs(themeTable) do
-        if self.Theme[k] then self.Theme[k] = v end
+        if self.Theme[k] then
+            self.Theme[k] = v
+        end
     end
 end
 
@@ -34,18 +34,18 @@ function SimpleUI:CreateWindow(settings)
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
     local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(0, 600, 0, 450)
+    Frame.Size = UDim2.new(0, 600, 0, 420)
     Frame.Position = UDim2.new(0.25, 0, 0.2, 0)
     Frame.BackgroundColor3 = SimpleUI.Theme.Background
     Frame.BorderSizePixel = 0
+    Frame.Parent = ScreenGui
     Frame.Active = true
     Frame.Draggable = true
-    Frame.Parent = ScreenGui
 
     local TopBar = Instance.new("TextLabel")
     TopBar.Size = UDim2.new(1, 0, 0, 40)
-    TopBar.BackgroundColor3 = SimpleUI.Theme.Accent
-    TopBar.Text = settings.menuname or "SimpleUI Menu"
+    TopBar.BackgroundColor3 = SimpleUI.Theme.Tab
+    TopBar.Text = settings.menuname or "Menu"
     TopBar.TextColor3 = Color3.fromRGB(255,255,255)
     TopBar.Font = Enum.Font.GothamBold
     TopBar.TextScaled = true
@@ -57,10 +57,10 @@ function SimpleUI:CreateWindow(settings)
     TabHolder.BackgroundTransparency = 1
     TabHolder.Parent = Frame
 
-    local TabLayout = Instance.new("UIListLayout")
-    TabLayout.Padding = UDim.new(0, 6)
-    TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    TabLayout.Parent = TabHolder
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Padding = UDim.new(0, 5)
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Parent = TabHolder
 
     local ContentFrame = Instance.new("Frame")
     ContentFrame.Size = UDim2.new(1, -140, 1, -40)
@@ -74,7 +74,7 @@ function SimpleUI:CreateWindow(settings)
         local Tab = Instance.new("TextButton")
         Tab.Size = UDim2.new(1, -10, 0, 40)
         Tab.Text = tabName
-        Tab.TextColor3 = SimpleUI.Theme.Text
+        Tab.TextColor3 = Color3.fromRGB(255, 255, 255)
         Tab.BackgroundColor3 = SimpleUI.Theme.Tab
         Tab.Font = Enum.Font.GothamBold
         Tab.TextScaled = true
@@ -84,6 +84,7 @@ function SimpleUI:CreateWindow(settings)
         Page.Size = UDim2.new(1, 0, 1, 0)
         Page.CanvasSize = UDim2.new(0, 0, 0, 0)
         Page.ScrollBarThickness = 6
+        Page.BackgroundTransparency = 1
         Page.Visible = false
         Page.Parent = ContentFrame
 
@@ -96,7 +97,9 @@ function SimpleUI:CreateWindow(settings)
 
         Tab.MouseButton1Click:Connect(function()
             for _, p in pairs(ContentFrame:GetChildren()) do
-                if p:IsA("ScrollingFrame") then p.Visible = false end
+                if p:IsA("ScrollingFrame") then
+                    p.Visible = false
+                end
             end
             for _, b in pairs(TabHolder:GetChildren()) do
                 if b:IsA("TextButton") then
@@ -111,37 +114,51 @@ function SimpleUI:CreateWindow(settings)
     end
 
     function Window:CreateToggle(tabPage, name, callback)
-        local Frame = Instance.new("Frame")
-        Frame.Size = UDim2.new(1, -10, 0, 40)
-        Frame.BackgroundTransparency = 1
-        Frame.Parent = tabPage
+        local Container = Instance.new("Frame")
+        Container.Size = UDim2.new(1, -10, 0, 40)
+        Container.BackgroundTransparency = 1
+        Container.Parent = tabPage
 
         local Label = Instance.new("TextLabel")
         Label.Size = UDim2.new(0.7, 0, 1, 0)
+        Label.BackgroundTransparency = 1
         Label.Text = name
         Label.Font = Enum.Font.GothamBold
         Label.TextScaled = true
-        Label.TextColor3 = SimpleUI.Theme.Text
-        Label.BackgroundTransparency = 1
-        Label.Parent = Frame
+        Label.TextColor3 = Color3.fromRGB(255,255,255)
+        Label.Parent = Container
 
-        local Switch = Instance.new("TextButton")
-        Switch.Size = UDim2.new(0.25, 0, 0.7, 0)
-        Switch.Position = UDim2.new(0.72, 0, 0.15, 0)
-        Switch.BackgroundColor3 = SimpleUI.Theme.ToggleOff
-        Switch.Text = ""
-        Switch.Parent = Frame
-
-        local UICorner = Instance.new("UICorner")
-        UICorner.CornerRadius = UDim.new(0, 10)
-        UICorner.Parent = Switch
+        local Toggle = Instance.new("TextButton")
+        Toggle.Size = UDim2.new(0.25, 0, 0.8, 0)
+        Toggle.Position = UDim2.new(0.72, 0, 0.1, 0)
+        Toggle.Text = ""
+        Toggle.BackgroundColor3 = SimpleUI.Theme.ToggleOff
+        Toggle.Parent = Container
 
         local state = false
-        Switch.MouseButton1Click:Connect(function()
+        local enabled = true
+
+        Toggle.MouseButton1Click:Connect(function()
+            if not enabled then return end
             state = not state
-            Switch.BackgroundColor3 = state and SimpleUI.Theme.ToggleOn or SimpleUI.Theme.ToggleOff
+            Toggle.BackgroundColor3 = state and SimpleUI.Theme.ToggleOn or SimpleUI.Theme.ToggleOff
             if callback then callback(state) end
         end)
+
+        return {
+            Set = function(val)
+                state = val
+                Toggle.BackgroundColor3 = state and SimpleUI.Theme.ToggleOn or SimpleUI.Theme.ToggleOff
+            end,
+            Disable = function()
+                enabled = false
+                Toggle.BackgroundColor3 = Color3.fromRGB(80,80,80)
+            end,
+            Enable = function()
+                enabled = true
+                Toggle.BackgroundColor3 = state and SimpleUI.Theme.ToggleOn or SimpleUI.Theme.ToggleOff
+            end
+        }
     end
 
     function Window:CreateButton(tabPage, name, callback)
@@ -153,10 +170,6 @@ function SimpleUI:CreateWindow(settings)
         Btn.TextColor3 = SimpleUI.Theme.ButtonText
         Btn.BackgroundColor3 = SimpleUI.Theme.Button
         Btn.Parent = tabPage
-
-        local UICorner = Instance.new("UICorner")
-        UICorner.CornerRadius = UDim.new(0, 10)
-        UICorner.Parent = Btn
 
         Btn.MouseButton1Click:Connect(function()
             if callback then callback() end
@@ -171,11 +184,11 @@ function SimpleUI:CreateWindow(settings)
 
         local Label = Instance.new("TextLabel")
         Label.Size = UDim2.new(1, 0, 0, 20)
+        Label.BackgroundTransparency = 1
         Label.Text = name .. " ("..default..")"
         Label.Font = Enum.Font.GothamBold
         Label.TextScaled = true
-        Label.TextColor3 = SimpleUI.Theme.Text
-        Label.BackgroundTransparency = 1
+        Label.TextColor3 = Color3.fromRGB(255,255,255)
         Label.Parent = Frame
 
         local Bar = Instance.new("Frame")
@@ -189,88 +202,102 @@ function SimpleUI:CreateWindow(settings)
         Fill.BackgroundColor3 = SimpleUI.Theme.SliderFill
         Fill.Parent = Bar
 
-        local dragging = false
-        local function update(x)
-            local relX = math.clamp((x - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
-            local value = math.floor(min + (max-min) * relX)
-            Fill.Size = UDim2.new(relX, 0, 1, 0)
-            Label.Text = name .. " ("..value..")"
-            if callback then callback(value) end
+        local Value = default
+
+        local function update(val)
+            Value = math.clamp(val, min, max)
+            Fill.Size = UDim2.new((Value-min)/(max-min), 0, 1, 0)
+            Label.Text = name.." ("..math.floor(Value)..")"
+            if callback then callback(Value) end
         end
 
         Bar.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = true
-                update(UserInputService:GetMouseLocation().X)
+                local moveConn, releaseConn
+                moveConn = UserInputService.InputChanged:Connect(function(inp)
+                    if inp.UserInputType == Enum.UserInputType.MouseMovement then
+                        local relX = math.clamp((inp.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
+                        update(min + (max-min)*relX)
+                    end
+                end)
+                releaseConn = UserInputService.InputEnded:Connect(function(inp)
+                    if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+                        moveConn:Disconnect()
+                        releaseConn:Disconnect()
+                    end
+                end)
             end
         end)
-        UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                dragging = false
-            end
-        end)
-        UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-                update(UserInputService:GetMouseLocation().X)
-            end
-        end)
+
+        update(default)
     end
 
     function Window:CreateDropdown(tabPage, name, options, callback)
+        local Frame = Instance.new("Frame")
+        Frame.Size = UDim2.new(1, -10, 0, 40)
+        Frame.BackgroundColor3 = SimpleUI.Theme.Dropdown
+        Frame.Parent = tabPage
+
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, 0, 0, 20)
+        Label.BackgroundTransparency = 1
+        Label.Text = name
+        Label.Font = Enum.Font.GothamBold
+        Label.TextScaled = true
+        Label.TextColor3 = Color3.fromRGB(255,255,255)
+        Label.Parent = Frame
+
+        local DropButton = Instance.new("TextButton")
+        DropButton.Size = UDim2.new(1, 0, 0, 20)
+        DropButton.Position = UDim2.new(0, 0, 0, 20)
+        DropButton.Text = "Select..."
+        DropButton.Font = Enum.Font.Gotham
+        DropButton.TextScaled = true
+        DropButton.TextColor3 = Color3.fromRGB(255,255,255)
+        DropButton.BackgroundColor3 = SimpleUI.Theme.DropdownOption
+        DropButton.Parent = Frame
+
         local Open = false
-        local Btn = Instance.new("TextButton")
-        Btn.Size = UDim2.new(1, -10, 0, 40)
-        Btn.Text = name.." ▼"
-        Btn.Font = Enum.Font.GothamBold
-        Btn.TextScaled = true
-        Btn.TextColor3 = SimpleUI.Theme.Text
-        Btn.BackgroundColor3 = SimpleUI.Theme.Dropdown
-        Btn.Parent = tabPage
+        local OptionHolder
 
-        local UICorner = Instance.new("UICorner")
-        UICorner.CornerRadius = UDim.new(0, 10)
-        UICorner.Parent = Btn
-
-        local List = Instance.new("Frame")
-        List.Size = UDim2.new(1, -10, 0, #options*35)
-        List.BackgroundColor3 = SimpleUI.Theme.Background
-        List.Visible = false
-        List.Parent = tabPage
-
-        local Layout = Instance.new("UIListLayout")
-        Layout.Padding = UDim.new(0, 5)
-        Layout.Parent = List
-
-        for _, opt in pairs(options) do
-            local OptBtn = Instance.new("TextButton")
-            OptBtn.Size = UDim2.new(1, -10, 0, 30)
-            OptBtn.Text = opt
-            OptBtn.TextScaled = true
-            OptBtn.Font = Enum.Font.Gotham
-            OptBtn.TextColor3 = SimpleUI.Theme.Text
-            OptBtn.BackgroundColor3 = SimpleUI.Theme.Tab
-            OptBtn.Parent = List
-            OptBtn.MouseButton1Click:Connect(function()
-                Btn.Text = name.." : "..opt
-                List.Visible = false
+        DropButton.MouseButton1Click:Connect(function()
+            if Open then
+                if OptionHolder then OptionHolder:Destroy() end
                 Open = false
-                if callback then callback(opt) end
-            end)
-        end
+                return
+            end
+            OptionHolder = Instance.new("Frame")
+            OptionHolder.Size = UDim2.new(1, 0, 0, #options * 25)
+            OptionHolder.Position = UDim2.new(0, 0, 1, 0)
+            OptionHolder.BackgroundColor3 = SimpleUI.Theme.DropdownOption
+            OptionHolder.Parent = Frame
 
-        Btn.MouseButton1Click:Connect(function()
-            Open = not Open
-            List.Visible = Open
+            local Layout = Instance.new("UIListLayout")
+            Layout.Parent = OptionHolder
+
+            for _, opt in ipairs(options) do
+                local Btn = Instance.new("TextButton")
+                Btn.Size = UDim2.new(1, 0, 0, 25)
+                Btn.Text = opt
+                Btn.Font = Enum.Font.Gotham
+                Btn.TextScaled = true
+                Btn.TextColor3 = Color3.fromRGB(255,255,255)
+                Btn.BackgroundTransparency = 1
+                Btn.Parent = OptionHolder
+
+                Btn.MouseButton1Click:Connect(function()
+                    DropButton.Text = opt
+                    if callback then callback(opt) end
+                    OptionHolder:Destroy()
+                    Open = false
+                end)
+            end
+            Open = true
         end)
     end
 
-    local defaultTabs = {"Main","Visuals","Player","Extras","Mods","Settings"}
-    for _, t in ipairs(defaultTabs) do Window:CreateTab(t) end
-    Tabs[defaultTabs[1]].Visible = true
-    TabHolder:GetChildren()[1].BackgroundColor3 = SimpleUI.Theme.TabActive
-
     if settings.keybind then
-        UserInputService.InputBegan:Connect(function(input,gpe)
+        UserInputService.InputBegan:Connect(function(input, gpe)
             if gpe then return end
             if input.KeyCode == Enum.KeyCode[settings.keybind:upper()] then
                 Frame.Visible = not Frame.Visible
