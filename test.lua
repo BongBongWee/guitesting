@@ -1973,8 +1973,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 	Elements.UIPageLayout.FillDirection = Enum.FillDirection.Horizontal
 	TabList.Size = UDim2.new(0, 150, 1, -45)
 	TabList.Position = UDim2.new(0, 0, 0, 45)
-	Elements.Size = UDim2.new(1, -150, 1, -45)
+	TabList.Parent = Main
+	Elements.Size = UDim2.new(1, -150, 1, -45) 
 	Elements.Position = UDim2.new(0, 150, 0, 45)
+if TabList:FindFirstChild("UIListLayout") then
+    TabList.UIListLayout.FillDirection = Enum.FillDirection.Vertical
+end
 	TabList.Visible = true
 
 if TabList:FindFirstChild("UIListLayout") then
