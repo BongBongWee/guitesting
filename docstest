@@ -1,0 +1,253 @@
+--// SimpleUI v2 //--
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local SimpleUI = {}
+
+-- Default Theme
+SimpleUI.Theme = {
+    ToggleOn = Color3.fromRGB(255, 0, 0),
+    ToggleOff = Color3.fromRGB(0, 0, 0),
+    Background = Color3.fromRGB(25, 25, 25),
+    Tab = Color3.fromRGB(50, 50, 50),
+    TabActive = Color3.fromRGB(100, 0, 150),
+    Button = Color3.fromRGB(0, 120, 200),
+    ButtonText = Color3.fromRGB(255, 255, 255),
+    SliderBar = Color3.fromRGB(80, 80, 80),
+    SliderFill = Color3.fromRGB(255, 0, 0),
+}
+
+-- Theme override
+function SimpleUI:SetTheme(themeTable)
+    for k,v in pairs(themeTable) do
+        if self.Theme[k] then
+            self.Theme[k] = v
+        end
+    end
+end
+
+-- Main Window
+function SimpleUI:CreateWindow(settings)
+    local Window = {}
+
+    -- ScreenGui
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.ResetOnSpawn = false  -- prevents UI from vanishing on respawn
+    ScreenGui.IgnoreGuiInset = true
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+    -- Main Frame
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0, 550, 0, 400)
+    Frame.Position = UDim2.new(0.25, 0, 0.2, 0)
+    Frame.BackgroundColor3 = SimpleUI.Theme.Background
+    Frame.BorderSizePixel = 0
+    Frame.Parent = ScreenGui
+    Frame.Active = true
+    Frame.Draggable = true
+
+    -- Top Bar
+    local TopBar = Instance.new("TextLabel")
+    TopBar.Size = UDim2.new(1, 0, 0, 40)
+    TopBar.BackgroundColor3 = SimpleUI.Theme.Tab
+    TopBar.Text = settings.menuname or "Menu"
+    TopBar.TextColor3 = Color3.fromRGB(255,255,255)
+    TopBar.Font = Enum.Font.GothamBold
+    TopBar.TextScaled = true
+    TopBar.Parent = Frame
+
+    -- Tab Holder
+    local TabHolder = Instance.new("Frame")
+    TabHolder.Size = UDim2.new(0, 130, 1, -40)
+    TabHolder.Position = UDim2.new(0, 0, 0, 40)
+    TabHolder.BackgroundTransparency = 1
+    TabHolder.Parent = Frame
+
+    local UIListLayout = Instance.new("UIListLayout")
+    UIListLayout.Padding = UDim.new(0, 5)
+    UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    UIListLayout.Parent = TabHolder
+
+    -- Content Frame
+    local ContentFrame = Instance.new("Frame")
+    ContentFrame.Size = UDim2.new(1, -130, 1, -40)
+    ContentFrame.Position = UDim2.new(0, 130, 0, 40)
+    ContentFrame.BackgroundTransparency = 1
+    ContentFrame.Parent = Frame
+
+    local Tabs = {}
+
+    -- Create Tabs
+    function Window:CreateTab(tabName)
+        local Tab = Instance.new("TextButton")
+        Tab.Size = UDim2.new(1, -10, 0, 40)
+        Tab.Text = tabName
+        Tab.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Tab.BackgroundColor3 = SimpleUI.Theme.Tab
+        Tab.Font = Enum.Font.GothamBold
+        Tab.TextScaled = true
+        Tab.Parent = TabHolder
+
+        local TabPage = Instance.new("ScrollingFrame")
+        TabPage.Size = UDim2.new(1, 0, 1, 0)
+        TabPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+        TabPage.ScrollBarThickness = 6
+        TabPage.BackgroundTransparency = 1
+        TabPage.Visible = false
+        TabPage.Parent = ContentFrame
+
+        local Layout = Instance.new("UIListLayout")
+        Layout.Padding = UDim.new(0, 5)
+        Layout.SortOrder = Enum.SortOrder.LayoutOrder
+        Layout.Parent = TabPage
+
+        Tabs[tabName] = TabPage
+
+        Tab.MouseButton1Click:Connect(function()
+            -- hide all pages
+            for _, page in pairs(ContentFrame:GetChildren()) do
+                if page:IsA("ScrollingFrame") then
+                    page.Visible = false
+                end
+            end
+            TabPage.Visible = true
+
+            -- update tab colors
+            for _, button in pairs(TabHolder:GetChildren()) do
+                if button:IsA("TextButton") then
+                    button.BackgroundColor3 = SimpleUI.Theme.Tab
+                end
+            end
+            Tab.BackgroundColor3 = SimpleUI.Theme.TabActive
+        end)
+
+        return TabPage
+    end
+
+    -- Toggle
+    function Window:CreateToggle(tabPage, name, callback)
+        local Toggle = Instance.new("TextButton")
+        Toggle.Size = UDim2.new(1, -10, 0, 40)
+        Toggle.Text = name
+        Toggle.Font = Enum.Font.GothamBold
+        Toggle.TextScaled = true
+        Toggle.TextColor3 = Color3.fromRGB(255,255,255)
+        Toggle.BackgroundColor3 = SimpleUI.Theme.ToggleOff
+        Toggle.Parent = tabPage
+
+        local state = false
+        local enabled = true
+
+        Toggle.MouseButton1Click:Connect(function()
+            if not enabled then return end
+            state = not state
+            Toggle.BackgroundColor3 = state and SimpleUI.Theme.ToggleOn or SimpleUI.Theme.ToggleOff
+            if callback then callback(state) end
+        end)
+
+        return {
+            Set = function(val)
+                state = val
+                Toggle.BackgroundColor3 = state and SimpleUI.Theme.ToggleOn or SimpleUI.Theme.ToggleOff
+            end,
+            Disable = function()
+                enabled = false
+                Toggle.BackgroundColor3 = Color3.fromRGB(80,80,80)
+            end,
+            Enable = function()
+                enabled = true
+                Toggle.BackgroundColor3 = state and SimpleUI.Theme.ToggleOn or SimpleUI.Theme.ToggleOff
+            end
+        }
+    end
+
+    -- Button
+    function Window:CreateButton(tabPage, name, callback)
+        local Btn = Instance.new("TextButton")
+        Btn.Size = UDim2.new(1, -10, 0, 40)
+        Btn.Text = name
+        Btn.Font = Enum.Font.GothamBold
+        Btn.TextScaled = true
+        Btn.TextColor3 = SimpleUI.Theme.ButtonText
+        Btn.BackgroundColor3 = SimpleUI.Theme.Button
+        Btn.Parent = tabPage
+
+        Btn.MouseButton1Click:Connect(function()
+            if callback then callback() end
+        end)
+    end
+
+    -- Slider
+    function Window:CreateSlider(tabPage, name, min, max, default, callback)
+        local Frame = Instance.new("Frame")
+        Frame.Size = UDim2.new(1, -10, 0, 60)
+        Frame.BackgroundTransparency = 1
+        Frame.Parent = tabPage
+
+        local Label = Instance.new("TextLabel")
+        Label.Size = UDim2.new(1, 0, 0, 20)
+        Label.BackgroundTransparency = 1
+        Label.Text = name .. " ("..default..")"
+        Label.Font = Enum.Font.GothamBold
+        Label.TextScaled = true
+        Label.TextColor3 = Color3.fromRGB(255,255,255)
+        Label.Parent = Frame
+
+        local Bar = Instance.new("Frame")
+        Bar.Size = UDim2.new(1, -20, 0, 15)
+        Bar.Position = UDim2.new(0, 10, 0, 35)
+        Bar.BackgroundColor3 = SimpleUI.Theme.SliderBar
+        Bar.Parent = Frame
+
+        local Fill = Instance.new("Frame")
+        Fill.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
+        Fill.BackgroundColor3 = SimpleUI.Theme.SliderFill
+        Fill.Parent = Bar
+
+        local Value = default
+
+        local function update(val)
+            Value = math.clamp(val, min, max)
+            Fill.Size = UDim2.new((Value-min)/(max-min), 0, 1, 0)
+            Label.Text = name.." ("..math.floor(Value)..")"
+            if callback then callback(Value) end
+        end
+
+        Bar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                local moveConn, releaseConn
+                moveConn = UserInputService.InputChanged:Connect(function(inp)
+                    if inp.UserInputType == Enum.UserInputType.MouseMovement then
+                        local relX = math.clamp((inp.Position.X - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
+                        update(min + (max-min)*relX)
+                    end
+                end)
+                releaseConn = UserInputService.InputEnded:Connect(function(inp)
+                    if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+                        moveConn:Disconnect()
+                        releaseConn:Disconnect()
+                    end
+                end)
+            end
+        end)
+
+        update(default)
+    end
+
+    -- Keybind toggle visibility
+    if settings.keybind then
+        UserInputService.InputBegan:Connect(function(input, gpe)
+            if gpe then return end
+            if input.KeyCode == Enum.KeyCode[settings.keybind:upper()] then
+                Frame.Visible = not Frame.Visible
+            end
+        end)
+    end
+
+    return Window
+end
+
+return SimpleUI
